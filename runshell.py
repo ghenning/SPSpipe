@@ -35,18 +35,18 @@ def gather_files(DIR):
 # calls the pipeline script to process the group.
 def split_files(FILES,RESDIR):
     #splitter = np.ceil(len(FILES)/2.) 
-    splitter = 1
+    splitter = 2
     print "splitter: ",splitter
     SPLITF = np.array_split(FILES,splitter)
     for i in range(int(splitter)):
         for j in range(len(SPLITF[i])):
             FIL = SPLITF[i][j]
-            LODM = str(0)
-            HIDM = str(1000)
+            LODM = str(450)
+            HIDM = str(650)
             RESPATH = os.path.join(RESDIR,"results")
             FILPATH = RESDIR
-            CODEPATH = "/hercules/u/ghil/piperuns/newnewpipe/"
-            JOBNAME = "CXfake"
+            CODEPATH = "/hercules/u/ghil/piperuns/obs_180622_1118/"
+            JOBNAME = "1118"
             launchmaker.create_script(LODM,HIDM,FILPATH,FIL,RESPATH,CODEPATH,JOBNAME)
             make_exe = "chmod +x launch_me.sh"
             bash_command(make_exe)
@@ -102,7 +102,7 @@ def Qstuff(RESDIR):
     theQ = np.loadtxt(Qout,dtype='string')
     if theQ.ndim==1:
         return False
-    YESNO = any(theQ[1:,2]=='CXfake')
+    YESNO = any(theQ[1:,2]=='1118')
     print "################################################"
     print "################################################"
     print YESNO
@@ -120,7 +120,7 @@ def Qstuff(RESDIR):
 
 def dbstuff(DIR,FILES):
 	create_table(DIR)
-	dbdb = 'ZPipeDB.sqlite' 
+	dbdb = 'PipelineDB.sqlite' 
 	db = os.path.join(DIR,dbdb)
 	add_names(db,FILES)
 	
@@ -130,12 +130,12 @@ if __name__=='__main__':
     # be calles automatically, ezpz
     # Running it is just:
     # python runshell.py /path_to_dd_files/
-    resdir = '/hercules/results/ghil/fake/cxfake2/newtst/'
+    resdir = '/hercules/results/ghil/obs_180622_1118/'
     DIR = resdir
     files = gather_files(DIR)
     # do os.system blabla to run initdb.db_stuff with singularity
     #bash_command('module load singularity')
-    comm = 'singularity exec -B /hercules/u/ghil/piperuns/cxfake2/:/work -B /hercules/results/ghil/fake/cxfake2/newtst/:/data \
+    comm = 'singularity exec -B /hercules/u/ghil/piperuns/obs_180622_1118/:/work -B /hercules/results/ghil/obs_180622_1118/:/data \
         /hercules/u/ghil/singularity/images/prestomod-2017-05-11-29e5097df53c.img python /work/initdb.py' # TMP PATH TEST
     bash_command(comm)
     #### TEMPORARILY OUT ###

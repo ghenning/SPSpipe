@@ -433,20 +433,26 @@ def THE_PROCESS(FILFILE):
     # for lower range:
     #       top band : 7700 MHz             - channel no: 1736:1746
     #       low band : 5850,5001,4152 MHz   - channel no: 151:161,1020:1030,1889:1899
-    cx_top = True # if I'm working on the top range of CX receiver data
+    # 1689:1792 is 4250:4350 MHz, because there is constant squiggly RFI in these channels
+    cx_top = False # if I'm working on the top range of CX receiver data
     cx_obs = True # if I'm working on CX receiver data
     if cx_top and cx_obs:
         if tmpfil.endswith("FB0_NEWHEAD.fil"):
             zappys = "30:146,1016:1036"
-        if tmpfil.endswith("FB1_NEWHEAD.fil"):
+        elif tmpfil.endswith("FB1_NEWHEAD.fil"):
             zappys = "502:522,1014:1034,1526:1546" 
         else:
-            zappys = "30:146,1016:1036"
+            ##zappys = "30:146,1016:1036"
+            zappys = "0:200,1016:1036"
     if cx_obs and not cx_top:
         if tmpfil.endswith("FB0_NEWHEAD.fil"):
-            zappys = "146:166,1015:1035,1884:1904" 
-        if tmpfil.endswith("FB1_NEWHEAD.fil"):
-            zappys = "1731:1751"
+            #zappys = "0:10,1020:1030,146:166,1015:1035,1884:1904,2040:2048,1689:1792" 
+            zappys = "0:10,1020:1030,2020:2048,1689:1792,592:634"
+        elif tmpfil.endswith("FB1_NEWHEAD.fil"):
+            zappys = "0:50,1020:1030,1731:1751,2040:2048"
+        else:
+            ##zappys = "30:146,1016:1036"
+            zappys = "0:200,1016:1036"
     '''
         rfifind
     '''
@@ -532,7 +538,7 @@ def THE_PROCESS(FILFILE):
     # filterbanks are a few hours long
     logname2 = "SPLOG" + current_fil
     print "Running sinigle_pulse_search.py..."
-    os.system("single_pulse_search.py -t 5.0 -m 0.02 -b -p " + \
+    os.system("single_pulse_search.py -t 7.0 -m 0.02 -b -p " + \
             prepdir + "*.dat" + \
             " | tee " + logdir + logname2 + ".txt")
     spsbreak.spsbreakdown(prepdir,tmpfil)
