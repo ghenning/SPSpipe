@@ -5,6 +5,7 @@ import struct
 import getopt
 from struct import unpack
 import optparse
+import matplotlib.pyplot as plt
 
 def header(file):
     inread = ''
@@ -62,13 +63,56 @@ def level_bandpass(DATA,NCHAN):
     DATA = DATA.astype('float32')
     dlen = DATA.shape[0]
     DATA.shape = (dlen/NCHAN,NCHAN)
-    bp = np.median(DATA,axis=0)
+    # laura's version
+    med_spec = np.median(DATA,axis=0)
+    std_spec = np.std(DATA,axis=0)
+    #flatten
+    DATA /= med_spec
+    med_flat = np.median(DATA, axis=0)
+    std_flat = np.std(DATA, axis=0)
+    # calc channel weights, deal with crappy channels
+    izero = np.where(med_spec==0)[0]
+    ilow = np.where(std_spec<0.5)[0]
+    # default weight = 1
+    weights = np.ones(NCHAN)
+    # if std dev is lower than expected for 1-bit noisy data
+    # set weight to stddev
+    weights[ilow] = std_spec[ilow]
+    weights[izero] = 0
+    # apply weights
+    DATA *= weights
+
+    med_wght = np.median(DATA, axis=0)
+    std_wght = np.std(DATA, axis=0)
+
+    # scale and recast
+    scale = 32; offset = 32
+    DATA *= scale
+    DATA += offset
+
+    med_scale = np.median(DATA, axis=0)
+    std_scale = np.std(DATA, axis=0)
+
+    #dflatout = np.cast['uint8'](DATA)
+
+    '''plt.subplot(211)
+    plt.plot(med_spec)
+    plt.plot(std_spec)
+    plt.subplot(212)
+    plt.plot(med_flat,'r-')
+    plt.plot(std_flat, 'g-')
+    plt.plot(med_scale, 'm-')
+    plt.plot(std_scale, 'c-')
+    plt.show()'''
+
+    # old
+    '''bp = np.median(DATA,axis=0)
     np.place(bp, bp == 0, 1)
     DATA /= bp
     DATA *= 32
-    DATA += 8
+    DATA += 8'''
     DATA = DATA.astype('uint8')
-    return DATA
+    return DATA #dflatout #DATA
 
 
 def main():
