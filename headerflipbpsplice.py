@@ -45,6 +45,10 @@ def flippy(INFILE1,INFILE2,OUTFILE,NCHAN,NSAMP,DTYPE,FLIP):
         dataIn2 = INFILE2.read(4*NCHAN*blocksize)
         data2fix1 = np.fromstring(dataIn1, dtype=DTYPE)
         data2fix2 = np.fromstring(dataIn2, dtype=DTYPE)
+        print "modulus upper band, nchan:"
+        print len(data2fix1)%NCHAN
+        print "modulus lower band, nchan:"
+        print len(data2fix2)%NCHAN
         if len(dataIn1) == 0: break
         FB0 = level_bandpass(data2fix2,NCHAN)
         FB0 = np.fliplr(FB0)
@@ -121,7 +125,7 @@ def main():
     outfile = open(opts.outfile,'w')
     head = header(infile1)
     newhead = update_headparam(head, ['fch1'], [8000]) # hardcoded for now
-    newhead = update_headparam(newhead, ['foff'], [-abs(opts.bw)])
+    newhead = update_headparam(newhead, ['foff'], [-0.976562]) #[-abs(opts.bw)]) hardcoded for now
     newhead = update_headparam(newhead, ['nchans'], [4096]) #hardcoded for now
     headlen = len(head)
     infile1.seek(headlen)
